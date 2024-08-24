@@ -12,10 +12,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    paymentDetails: {
-        upiId: { 
-            type: String 
-        },
+    subscription: {
+        type: String,
+        default: 'free',
     },
   }, {
     timestamps: true, 
