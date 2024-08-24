@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    paymentDetails: {
+        upiId: { type: String },  
+        paypalEmail: { type: String },  // Optionally store PayPal email
+    },
   }, {
     timestamps: true, 
   })
