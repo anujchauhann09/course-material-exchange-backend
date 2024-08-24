@@ -5,7 +5,7 @@ const {cryptPassword, comparePassword} = require('../utils/cryptPassword')
 const generateToken = require('../utils/generateToken')
 
 router.post('/register', async (req, res) => {
-    const {name, email, password} = req.body
+    const {name, email, password, upiId} = req.body
 
     try {
         let user = await User.findOne({email})
@@ -14,7 +14,10 @@ router.post('/register', async (req, res) => {
         user = new User({
             name,
             email,
-            password
+            password,
+            paymentDetails: {
+                upiId
+            }
         })
         user.password = cryptPassword(password)
 
