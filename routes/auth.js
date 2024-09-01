@@ -5,7 +5,7 @@ const {cryptPassword, comparePassword} = require('../utils/cryptPassword')
 const generateToken = require('../utils/generateToken')
 
 router.post('/register', async (req, res) => {
-    const {name, email, password, upiId} = req.body
+    const {name, email, password, subscription} = req.body
 
     try {
         let user = await User.findOne({email})
@@ -15,11 +15,10 @@ router.post('/register', async (req, res) => {
             name,
             email,
             password,
-            paymentDetails: {
-                upiId
-            }
+            subscription
         })
-        user.password = cryptPassword(password)
+        user.password = await cryptPassword(password)
+        await user.save()
 
         const payload = {
             user: {
@@ -27,11 +26,23 @@ router.post('/register', async (req, res) => {
             }
         }
 
+        // console.log('Environment:', process.env.NODE_ENV)
         const token = generateToken(payload)
+        // console.log('Generated Token:', token)
 
-        return res.status(201).json({token})
+        // return res.status(201).json({token})
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',  // Ensure cookies are sent only over HTTPS in production
+            sameSite: 'strict',  // Helps mitigate CSRF attacks
+            maxAge: 3600000  // 1 hour expiration time for the cookie
+        })
+
+        return res.status(201).json({ message: 'User registered successfully' })
     } catch (error) {
-        return res.status(500).send('Server error')
+        console.error('Error during registration:', error);  
+        return res.status(500).json({ message: 'Server error', error: error.message })
     }
 })
 
@@ -43,7 +54,7 @@ router.post('/login', async (req, res) => {
         if(!user)
             return res.status(400).json({message: 'Invalid credentials'})
 
-        const isMatch = comparePassword(password, user.password)
+        const isMatch = await comparePassword(password, user.password)
         if(!isMatch)
             return res.status(400).json({message: 'Invalid credentials'})
 
@@ -55,9 +66,20 @@ router.post('/login', async (req, res) => {
 
         const token = generateToken(payload)
 
-        return res.status(201).json({token})
+        // return res.status(201).json({token})
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 3600000  
+        })
+
+        return res.status(200).json({ message: 'Login successful' })
     } catch (error) {
-        return res.status(500).send('Server error')
+        console.error('Error during login:', error)
+        return res.status(500).json({ message: 'Server error', error: error.message })
     }
 })
 
+module.exports = router

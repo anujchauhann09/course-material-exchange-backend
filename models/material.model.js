@@ -38,7 +38,8 @@ const materialSchema = new mongoose.Schema({
     required: true,
   },
   paymentStatus: { 
-    type: String, enum: ['pending', 'completed', 'failed'],
+    type: String, 
+    enum: ['pending', 'completed', 'failed'],
     default: 'pending' 
   }, 
   transactionId: { 
@@ -47,3 +48,16 @@ const materialSchema = new mongoose.Schema({
 }, {timestamp: true})
 
 module.exports = mongoose.model('Material', materialSchema)
+
+// {
+//   "title": "PW DSA NOTES",
+//   "course": "B.TECH",
+//   "description": "Organized notes of DSA",
+//   "fileUrl": "https://cloudinary.com/file-storage/fileUrl",
+//   "fileSize": "1MB",
+//   "fileFormat": "pdf",
+//   "price": "1000",
+//   "isFree": "true",
+//   "paymentStatus": "Pending",
+//   "transactionId": "asdkjhdbgkjfhaj"
+// }
